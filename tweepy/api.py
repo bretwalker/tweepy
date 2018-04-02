@@ -6,6 +6,7 @@ from __future__ import print_function
 
 import os
 import mimetypes
+import time
 
 import six
 
@@ -296,16 +297,55 @@ class API(object):
             headers, post_data, fp = API._chunk_media('finalize', filename, self.max_size_chunked, media_id=media_info.media_id, is_direct_message=is_direct_message)
             kwargs = {'headers': headers, 'post_data': post_data}
 
-            # The FINALIZE command returns media information
-            return bind_api(
-                api=self,
-                path='/media/upload.json',
-                method='POST',
-                payload_type='media',
-                allowed_param=[],
-                require_auth=True,
-                upload_api=True
-            )(*args, **kwargs)
+            if 'mp4' not in filename.lower():
+                # The FINALIZE command returns media information
+                return bind_api(
+                    api=self,
+                    path='/media/upload.json',
+                    method='POST',
+                    payload_type='media',
+                    allowed_param=[],
+                    require_auth=True,
+                    upload_api=True
+                )(*args, **kwargs)
+            else:
+                finalize_response = bind_api(
+                    api=self,
+                    path='/media/upload.json',
+                    method='POST',
+                    payload_type='media',
+                    allowed_param=[],
+                    require_auth=True,
+                    upload_api=True
+                )(*args, **kwargs)
+
+                wait_secs = 1 or finalize_response['processing_info']['check_after_secs']
+                try_times = 20
+
+                while try_times > 0:
+                    try_times -= 1
+
+                    kwargs = {
+                        'command': 'STATUS',
+                        'media_id': media_info.media_id
+                    }
+
+                    status_response = bind_api(
+                        api=self,
+                        path='/media/upload.json',
+                        method='GET',
+                        payload_type='media',
+                        allowed_param=[],
+                        require_auth=True,
+                        upload_api=True
+                    )(*args, **kwargs)
+
+                    processing_info = status_response.processing_info
+                    if processing_info['state'] == 'succeeded':
+                        return finalize_response
+
+                    time.sleep(wait_secs)
+
         else:
             return media_info
 
