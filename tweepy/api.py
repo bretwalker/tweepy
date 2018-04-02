@@ -297,9 +297,6 @@ class API(object):
             headers, post_data, fp = API._chunk_media('finalize', filename, self.max_size_chunked, media_id=media_info.media_id, is_direct_message=is_direct_message)
             kwargs = {'headers': headers, 'post_data': post_data}
 
-            print('filename: ' + filename)
-            im
-
             if 'mp4' not in filename.lower():
                 # The FINALIZE command returns media information
                 return bind_api(
