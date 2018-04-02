@@ -298,6 +298,7 @@ class API(object):
             kwargs = {'headers': headers, 'post_data': post_data}
 
             print('filename: ' + filename)
+            im
 
             if 'mp4' not in filename.lower():
                 # The FINALIZE command returns media information
