@@ -3,7 +3,7 @@
 import re, uuid
 from setuptools import setup, find_packages
 from distutils.version import LooseVersion
-
+import pip
 
 if LooseVersion(pip.__version__) >= "10.0.0":
     from pip._internal.req import parse_requirements
